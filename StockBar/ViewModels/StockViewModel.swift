@@ -23,6 +23,12 @@ class StockViewModel {
             if showMenuBarInfo { startCycling() } else { stopCycling() }
         }
     }
+    var cycleInterval: Double = 3.0 {
+        didSet {
+            UserDefaults.standard.set(cycleInterval, forKey: Self.cycleIntervalKey)
+            if showMenuBarInfo { startCycling() }
+        }
+    }
     var menuBarStockIndex = 0
     var positions: [String: Position] = [:]
     private var displayStyles: [String: DisplayStyle] = [:]
@@ -145,6 +151,7 @@ class StockViewModel {
     private static let layoutKey = "stockbar.layout"
     private static let showColorKey = "stockbar.showColor"
     private static let showMenuBarInfoKey = "stockbar.showMenuBarInfo"
+    private static let cycleIntervalKey = "stockbar.cycleInterval"
     private static let customNamesKey = "stockbar.customNames"
 
     init() {
@@ -155,6 +162,7 @@ class StockViewModel {
         self.customNames = Self.loadCustomNames()
         self.showColor = UserDefaults.standard.object(forKey: Self.showColorKey) as? Bool ?? true
         self.showMenuBarInfo = UserDefaults.standard.object(forKey: Self.showMenuBarInfoKey) as? Bool ?? false
+        self.cycleInterval = UserDefaults.standard.object(forKey: Self.cycleIntervalKey) as? Double ?? 3.0
         self.repairLayout()
         Task {
             await fetchStocks()
@@ -384,7 +392,8 @@ class StockViewModel {
 
     private func startCycling() {
         cycleTimer?.cancel()
-        cycleTimer = Timer.publish(every: 2, on: .main, in: .common)
+        let interval = max(1, cycleInterval)
+        cycleTimer = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self, !self.stocks.isEmpty else { return }

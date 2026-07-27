@@ -202,6 +202,17 @@ struct MenuBarView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
+                if viewModel.showMenuBarInfo {
+                    Text("轮播间隔")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                    TextField("秒", value: $viewModel.cycleInterval, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 36)
+                    Text("秒")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                }
                 Button("退出") {
                     NSApplication.shared.terminate(nil)
                 }
