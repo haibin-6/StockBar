@@ -8,7 +8,7 @@ struct StockBarApp: App {
         MenuBarExtra {
             MenuBarView(viewModel: viewModel)
         } label: {
-            if let stock = viewModel.stocks.first {
+            if viewModel.showMenuBarInfo, let stock = viewModel.currentMenuBarStock {
                 Text(menuBarText(for: stock))
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(stock.isUp ? .red : stock.isDown ? .green : .primary)

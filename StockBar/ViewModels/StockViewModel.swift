@@ -17,6 +17,13 @@ class StockViewModel {
     var showColor = true {
         didSet { UserDefaults.standard.set(showColor, forKey: Self.showColorKey) }
     }
+    var showMenuBarInfo = false {
+        didSet {
+            UserDefaults.standard.set(showMenuBarInfo, forKey: Self.showMenuBarInfoKey)
+            if showMenuBarInfo { startCycling() } else { stopCycling() }
+        }
+    }
+    var menuBarStockIndex = 0
     var positions: [String: Position] = [:]
     private var displayStyles: [String: DisplayStyle] = [:]
     private var customNames: [String: String] = [:]
@@ -129,6 +136,7 @@ class StockViewModel {
 
     private let service = StockService()
     private var cancellable: AnyCancellable?
+    private var cycleTimer: AnyCancellable?
     private var watchedStockIds: [String]
 
     private static let watchedStocksKey = "watchedStockIds"
@@ -136,6 +144,7 @@ class StockViewModel {
     private static let displayStylesKey = "stockbar.displayStyles"
     private static let layoutKey = "stockbar.layout"
     private static let showColorKey = "stockbar.showColor"
+    private static let showMenuBarInfoKey = "stockbar.showMenuBarInfo"
     private static let customNamesKey = "stockbar.customNames"
 
     init() {
@@ -145,11 +154,13 @@ class StockViewModel {
         self.layout = Self.loadLayout()
         self.customNames = Self.loadCustomNames()
         self.showColor = UserDefaults.standard.object(forKey: Self.showColorKey) as? Bool ?? true
+        self.showMenuBarInfo = UserDefaults.standard.object(forKey: Self.showMenuBarInfoKey) as? Bool ?? false
         self.repairLayout()
         Task {
             await fetchStocks()
             startPolling()
         }
+        if showMenuBarInfo { startCycling() }
     }
 
     /// 添加关注的股票
@@ -363,6 +374,28 @@ class StockViewModel {
     }
 
     // MARK: - Private
+
+    /// 菜单栏当前轮播显示的股票
+    var currentMenuBarStock: Stock? {
+        guard !stocks.isEmpty else { return nil }
+        let idx = menuBarStockIndex % stocks.count
+        return stocks[idx]
+    }
+
+    private func startCycling() {
+        cycleTimer?.cancel()
+        cycleTimer = Timer.publish(every: 2, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self, !self.stocks.isEmpty else { return }
+                self.menuBarStockIndex = (self.menuBarStockIndex + 1) % self.stocks.count
+            }
+    }
+
+    private func stopCycling() {
+        cycleTimer?.cancel()
+        cycleTimer = nil
+    }
 
     private func fetchStocks() async {
         // 只保留有效格式（sh/sz + 数字）

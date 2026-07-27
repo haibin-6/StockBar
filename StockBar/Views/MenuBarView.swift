@@ -59,6 +59,14 @@ struct MenuBarView: View {
                 }
                 .buttonStyle(.plain)
                 .help(viewModel.showColor ? "显示颜色" : "隐私模式")
+                // Menu bar info toggle
+                Button {
+                    viewModel.showMenuBarInfo.toggle()
+                } label: {
+                    Image(systemName: viewModel.showMenuBarInfo ? "text.badge.checkmark" : "text.badge.xmark")
+                }
+                .buttonStyle(.plain)
+                .help(viewModel.showMenuBarInfo ? "菜单栏显示价格：开" : "菜单栏显示价格：关")
                 // Add stock button
                 Button {
                     showAddPopover.toggle()
