@@ -1,8 +1,10 @@
 import SwiftUI
+import AppKit
 
 @main
 struct StockBarApp: App {
     @State private var viewModel = StockViewModel()
+    @State private var persistentWindowController: NSWindowController?
 
     var body: some Scene {
         MenuBarExtra {
@@ -18,13 +20,39 @@ struct StockBarApp: App {
             }
         }
         .menuBarExtraStyle(.window)
-
-        Window("系统监控", id: "persistent") {
-            MenuBarView(viewModel: viewModel, isPersistent: true)
-                .frame(width: 320)
+        .onChange(of: viewModel.windowPersistent) { _, newValue in
+            if newValue {
+                showPersistentWindow()
+            } else {
+                closePersistentWindow()
+            }
         }
-        .defaultSize(width: 320, height: 400)
-        .windowResizability(.contentSize)
+    }
+
+    private func showPersistentWindow() {
+        guard persistentWindowController == nil else { return }
+        let contentView = MenuBarView(viewModel: viewModel, isPersistent: true)
+            .frame(width: 320)
+        let hosting = NSHostingController(rootView: contentView)
+        let window = NSWindow(contentViewController: hosting)
+        window.title = "系统监控"
+        window.styleMask = [.titled, .closable, .resizable, .miniaturizable]
+        window.level = .floating
+        window.hidesOnDeactivate = false
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.setContentSize(NSSize(width: 320, height: 500))
+        window.isReleasedWhenClosed = false
+        window.delegate = WindowDelegate { [weak viewModel] in
+            viewModel?.windowPersistent = false
+        }
+        let controller = NSWindowController(window: window)
+        controller.showWindow(nil)
+        persistentWindowController = controller
+    }
+
+    private func closePersistentWindow() {
+        persistentWindowController?.close()
+        persistentWindowController = nil
     }
 
     private func menuBarText(for stock: Stock) -> String {
@@ -33,4 +61,10 @@ struct StockBarApp: App {
         let change = String(format: "%@%.2f%%", sign, stock.changePercent)
         return "\(price) \(change)"
     }
+}
+
+private class WindowDelegate: NSObject, NSWindowDelegate {
+    let onClose: () -> Void
+    init(onClose: @escaping () -> Void) { self.onClose = onClose }
+    func windowWillClose(_ notification: Notification) { onClose() }
 }

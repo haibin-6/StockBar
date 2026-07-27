@@ -2,8 +2,6 @@ import SwiftUI
 
 struct MenuBarView: View {
     @Bindable var viewModel: StockViewModel
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
     var isPersistent = false
     @State private var newStockCode = ""
     @State private var editingPositionStockId: String? = nil
@@ -233,19 +231,6 @@ struct MenuBarView: View {
             .padding(.top, 4)
         }
         .frame(width: contentWidth)
-        .onChange(of: viewModel.windowPersistent) { _, newValue in
-            guard !isPersistent else { return }
-            if newValue {
-                openWindow(id: "persistent")
-            } else {
-                dismissWindow(id: "persistent")
-            }
-        }
-        .onDisappear {
-            if isPersistent {
-                viewModel.windowPersistent = false
-            }
-        }
     }
 
     // MARK: - Stock Card
