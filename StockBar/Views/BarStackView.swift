@@ -7,17 +7,15 @@ struct BarStackView: View {
     let price: Double  // currentPrice
     let step: Double
     var showColor: Bool = true
-    var showPriceChange: Bool = true
 
     private let totalBlocks = 10
 
-    init(value: Double, label: String, price: Double, step: Double = 0.2, showColor: Bool = true, showPriceChange: Bool = true) {
+    init(value: Double, label: String, price: Double, step: Double = 0.2, showColor: Bool = true) {
         self.value = value
         self.label = label
         self.price = price
         self.step = step
         self.showColor = showColor
-        self.showPriceChange = showPriceChange
     }
 
     var body: some View {
@@ -41,14 +39,12 @@ struct BarStackView: View {
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                if showPriceChange {
-                    Text(formatPrice(price))
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(.primary)
-                    Text(formatValue(value))
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(showColor ? valueColor(value) : .primary)
-                }
+                Text(formatPrice(price))
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.primary)
+                Text(formatValue(value))
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundStyle(showColor ? valueColor(value) : .primary)
             }
 
             Spacer()

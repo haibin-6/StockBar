@@ -6,7 +6,6 @@ struct GaugeView: View {
     let detail: String
     var profit: Double? = nil
     var showColor: Bool = true
-    var showPriceChange: Bool = true
 
     private let maxValue = 20.0
 
@@ -53,14 +52,12 @@ struct GaugeView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer()
-                if showPriceChange {
-                    Text(detail)
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(.primary)
-                    Text(formatChange(value))
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(showColor ? (value >= 0 ? .red : .green) : .primary)
-                }
+                Text(detail)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.primary)
+                Text(formatChange(value))
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundStyle(showColor ? (value >= 0 ? .red : .green) : .primary)
             }
 
             // Profit row (only if position is set)
