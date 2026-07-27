@@ -67,6 +67,14 @@ struct MenuBarView: View {
                 }
                 .buttonStyle(.plain)
                 .help(viewModel.showMenuBarInfo ? "菜单栏显示价格：开" : "菜单栏显示价格：关")
+                // Window persistence toggle
+                Button {
+                    viewModel.windowPersistent.toggle()
+                } label: {
+                    Image(systemName: viewModel.windowPersistent ? "pin.fill" : "pin")
+                }
+                .buttonStyle(.plain)
+                .help(viewModel.windowPersistent ? "窗口固定：开" : "窗口固定：关")
                 // Add stock button
                 Button {
                     showAddPopover.toggle()
@@ -222,6 +230,21 @@ struct MenuBarView: View {
             .padding(.top, 4)
         }
         .frame(width: contentWidth)
+        .onAppear { applyWindowPersistence() }
+        .onChange(of: viewModel.windowPersistent) { _, _ in applyWindowPersistence() }
+    }
+
+    private func applyWindowPersistence() {
+        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.level == .popUpMenu }) else { return }
+        if viewModel.windowPersistent {
+            window.level = .floating
+            window.hidesOnDeactivate = false
+            window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        } else {
+            window.level = .popUpMenu
+            window.hidesOnDeactivate = true
+            window.collectionBehavior = []
+        }
     }
 
     // MARK: - Stock Card

@@ -29,6 +29,9 @@ class StockViewModel {
             if showMenuBarInfo { startCycling() }
         }
     }
+    var windowPersistent = false {
+        didSet { UserDefaults.standard.set(windowPersistent, forKey: Self.windowPersistentKey) }
+    }
     var menuBarStockIndex = 0
     private var menuBarVisibleStocks: Set<String> = [] {
         didSet { saveMenuBarVisibleStocks() }
@@ -155,6 +158,7 @@ class StockViewModel {
     private static let showColorKey = "stockbar.showColor"
     private static let showMenuBarInfoKey = "stockbar.showMenuBarInfo"
     private static let cycleIntervalKey = "stockbar.cycleInterval"
+    private static let windowPersistentKey = "stockbar.windowPersistent"
     private static let menuBarVisibleStocksKey = "stockbar.menuBarVisibleStocks"
     private static let customNamesKey = "stockbar.customNames"
 
@@ -167,6 +171,7 @@ class StockViewModel {
         self.showColor = UserDefaults.standard.object(forKey: Self.showColorKey) as? Bool ?? true
         self.showMenuBarInfo = UserDefaults.standard.object(forKey: Self.showMenuBarInfoKey) as? Bool ?? false
         self.cycleInterval = UserDefaults.standard.object(forKey: Self.cycleIntervalKey) as? Double ?? 3.0
+        self.windowPersistent = UserDefaults.standard.object(forKey: Self.windowPersistentKey) as? Bool ?? false
         self.menuBarVisibleStocks = Self.loadMenuBarVisibleStocks()
         self.repairLayout()
         Task {
