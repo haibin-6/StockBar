@@ -18,6 +18,13 @@ struct StockBarApp: App {
             }
         }
         .menuBarExtraStyle(.window)
+
+        Window("系统监控", id: "persistent") {
+            MenuBarView(viewModel: viewModel)
+                .frame(width: 320)
+        }
+        .defaultSize(width: 320, height: 400)
+        .windowResizability(.contentSize)
     }
 
     private func menuBarText(for stock: Stock) -> String {

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MenuBarView: View {
     @Bindable var viewModel: StockViewModel
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @State private var newStockCode = ""
     @State private var editingPositionStockId: String? = nil
     @State private var costPriceText = ""
@@ -230,20 +232,12 @@ struct MenuBarView: View {
             .padding(.top, 4)
         }
         .frame(width: contentWidth)
-        .onAppear { applyWindowPersistence() }
-        .onChange(of: viewModel.windowPersistent) { _, _ in applyWindowPersistence() }
-    }
-
-    private func applyWindowPersistence() {
-        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.level == .popUpMenu }) else { return }
-        if viewModel.windowPersistent {
-            window.level = .floating
-            window.hidesOnDeactivate = false
-            window.collectionBehavior = [.canJoinAllSpaces, .stationary]
-        } else {
-            window.level = .popUpMenu
-            window.hidesOnDeactivate = true
-            window.collectionBehavior = []
+        .onChange(of: viewModel.windowPersistent) { _, newValue in
+            if newValue {
+                openWindow(id: "persistent")
+            } else {
+                dismissWindow(id: "persistent")
+            }
         }
     }
 
