@@ -59,6 +59,14 @@ struct MenuBarView: View {
                 }
                 .buttonStyle(.plain)
                 .help(viewModel.showColor ? "显示颜色" : "隐私模式")
+                // Price/Change toggle
+                Button {
+                    viewModel.showPriceChange.toggle()
+                } label: {
+                    Image(systemName: viewModel.showPriceChange ? "dollarsign.circle" : "dollarsign.circle.slash")
+                }
+                .buttonStyle(.plain)
+                .help(viewModel.showPriceChange ? "显示价格/涨幅" : "隐藏价格/涨幅")
                 // Add stock button
                 Button {
                     showAddPopover.toggle()
@@ -261,13 +269,14 @@ struct MenuBarView: View {
                         value: stock.changePercent,
                         label: viewModel.displayName(for: stock.id),
                         detail: String(format: "%.2f", stock.currentPrice),
-                        showColor: viewModel.showColor
+                        showColor: viewModel.showColor,
+                        showPriceChange: viewModel.showPriceChange
                     )
                     .padding(.horizontal, isSharedRow ? 4 : 12)
                 case .heatmap:
-                    HeatmapView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor)
+                    HeatmapView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor, showPriceChange: viewModel.showPriceChange)
                 case .barStack:
-                    BarStackView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor)
+                    BarStackView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor, showPriceChange: viewModel.showPriceChange)
                 }
             }
             .frame(maxWidth: isSharedRow ? .infinity : nil)

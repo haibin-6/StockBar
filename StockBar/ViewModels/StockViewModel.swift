@@ -17,6 +17,9 @@ class StockViewModel {
     var showColor = true {
         didSet { UserDefaults.standard.set(showColor, forKey: Self.showColorKey) }
     }
+    var showPriceChange = true {
+        didSet { UserDefaults.standard.set(showPriceChange, forKey: Self.showPriceChangeKey) }
+    }
     var positions: [String: Position] = [:]
     private var displayStyles: [String: DisplayStyle] = [:]
     private var customNames: [String: String] = [:]
@@ -136,6 +139,7 @@ class StockViewModel {
     private static let displayStylesKey = "stockbar.displayStyles"
     private static let layoutKey = "stockbar.layout"
     private static let showColorKey = "stockbar.showColor"
+    private static let showPriceChangeKey = "stockbar.showPriceChange"
     private static let customNamesKey = "stockbar.customNames"
 
     init() {
@@ -145,6 +149,7 @@ class StockViewModel {
         self.layout = Self.loadLayout()
         self.customNames = Self.loadCustomNames()
         self.showColor = UserDefaults.standard.object(forKey: Self.showColorKey) as? Bool ?? true
+        self.showPriceChange = UserDefaults.standard.object(forKey: Self.showPriceChangeKey) as? Bool ?? true
         self.repairLayout()
         Task {
             await fetchStocks()
