@@ -265,9 +265,9 @@ struct MenuBarView: View {
                     )
                     .padding(.horizontal, isSharedRow ? 4 : 12)
                 case .heatmap:
-                    HeatmapView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), step: step, showColor: viewModel.showColor)
+                    HeatmapView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor)
                 case .barStack:
-                    BarStackView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), step: step, showColor: viewModel.showColor)
+                    BarStackView(value: stock.changePercent, label: viewModel.displayName(for: stock.id), price: stock.currentPrice, step: step, showColor: viewModel.showColor)
                 }
             }
             .frame(maxWidth: isSharedRow ? .infinity : nil)

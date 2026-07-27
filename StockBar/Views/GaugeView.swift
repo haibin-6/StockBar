@@ -52,6 +52,9 @@ struct GaugeView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer()
+                Text(detail)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.primary)
                 Text(formatChange(value))
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .foregroundStyle(showColor ? (value >= 0 ? .red : .green) : .primary)
@@ -71,10 +74,12 @@ struct GaugeView: View {
     }
 
     private func formatChange(_ change: Double) -> String {
-        return String(format: "%.1fKB/s", abs(change))
+        let sign = change > 0 ? "+" : ""
+        return String(format: "%@%.2f%%", sign, change)
     }
 
     private func formatProfit(_ value: Double) -> String {
-        return String(format: "%.1fKB/s", abs(value))
+        let sign = value > 0 ? "+" : ""
+        return String(format: "%@%.2f", sign, value)
     }
 }

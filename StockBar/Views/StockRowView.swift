@@ -47,6 +47,7 @@ struct StockRowView: View {
     }
 
     private func formatChange(_ change: Double) -> String {
-        return String(format: "%.1fKB/s", abs(change))
+        let sign = change > 0 ? "+" : ""
+        return String(format: "%@%.2f%%", sign, change)
     }
 }
