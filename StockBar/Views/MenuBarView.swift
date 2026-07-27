@@ -349,6 +349,10 @@ struct MenuBarView: View {
                 renamingStockId = stock.id
             }
 
+            Button(viewModel.isMenuBarVisible(stock.id) ? "✓ 菜单栏显示" : "菜单栏显示") {
+                viewModel.toggleMenuBarVisible(stock.id)
+            }
+
             Menu("显示样式") {
                 Button(style == .gauge ? "✓ 音量条" : "音量条") {
                     viewModel.setDisplayStyle(.gauge, for: stock.id)

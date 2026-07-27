@@ -30,6 +30,9 @@ class StockViewModel {
         }
     }
     var menuBarStockIndex = 0
+    private var menuBarVisibleStocks: Set<String> = [] {
+        didSet { saveMenuBarVisibleStocks() }
+    }
     var positions: [String: Position] = [:]
     private var displayStyles: [String: DisplayStyle] = [:]
     private var customNames: [String: String] = [:]
@@ -152,6 +155,7 @@ class StockViewModel {
     private static let showColorKey = "stockbar.showColor"
     private static let showMenuBarInfoKey = "stockbar.showMenuBarInfo"
     private static let cycleIntervalKey = "stockbar.cycleInterval"
+    private static let menuBarVisibleStocksKey = "stockbar.menuBarVisibleStocks"
     private static let customNamesKey = "stockbar.customNames"
 
     init() {
@@ -163,6 +167,7 @@ class StockViewModel {
         self.showColor = UserDefaults.standard.object(forKey: Self.showColorKey) as? Bool ?? true
         self.showMenuBarInfo = UserDefaults.standard.object(forKey: Self.showMenuBarInfoKey) as? Bool ?? false
         self.cycleInterval = UserDefaults.standard.object(forKey: Self.cycleIntervalKey) as? Double ?? 3.0
+        self.menuBarVisibleStocks = Self.loadMenuBarVisibleStocks()
         self.repairLayout()
         Task {
             await fetchStocks()
@@ -190,6 +195,7 @@ class StockViewModel {
         guard !watchedStockIds.contains(code) else { return }
         watchedStockIds.append(code)
         layout.append([code])
+        menuBarVisibleStocks.insert(code)  // 默认可见
         saveWatchedStocks()
         saveLayout()
         Task { await fetchStocks() }
@@ -209,6 +215,7 @@ class StockViewModel {
         positions.removeValue(forKey: id)
         displayStyles.removeValue(forKey: id)
         customNames.removeValue(forKey: id)
+        menuBarVisibleStocks.remove(id)
         // Remove from layout
         for i in layout.indices {
             layout[i].removeAll { $0 == id }
@@ -383,11 +390,30 @@ class StockViewModel {
 
     // MARK: - Private
 
+    /// 菜单栏轮播可见的股票列表
+    var menuBarCycleStocks: [Stock] {
+        stocks.filter { menuBarVisibleStocks.contains($0.id) }
+    }
+
     /// 菜单栏当前轮播显示的股票
     var currentMenuBarStock: Stock? {
-        guard !stocks.isEmpty else { return nil }
-        let idx = menuBarStockIndex % stocks.count
-        return stocks[idx]
+        guard !menuBarCycleStocks.isEmpty else { return nil }
+        let idx = menuBarStockIndex % menuBarCycleStocks.count
+        return menuBarCycleStocks[idx]
+    }
+
+    /// 某只股票是否在菜单栏可见
+    func isMenuBarVisible(_ stockId: String) -> Bool {
+        menuBarVisibleStocks.contains(stockId)
+    }
+
+    /// 切换菜单栏可见性
+    func toggleMenuBarVisible(_ stockId: String) {
+        if menuBarVisibleStocks.contains(stockId) {
+            menuBarVisibleStocks.remove(stockId)
+        } else {
+            menuBarVisibleStocks.insert(stockId)
+        }
     }
 
     private func startCycling() {
@@ -396,8 +422,8 @@ class StockViewModel {
         cycleTimer = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self, !self.stocks.isEmpty else { return }
-                self.menuBarStockIndex = (self.menuBarStockIndex + 1) % self.stocks.count
+                guard let self, !self.menuBarCycleStocks.isEmpty else { return }
+                self.menuBarStockIndex = (self.menuBarStockIndex + 1) % self.menuBarCycleStocks.count
             }
     }
 
@@ -490,5 +516,15 @@ class StockViewModel {
     private func saveCustomNames() {
         guard let data = try? JSONEncoder().encode(customNames) else { return }
         UserDefaults.standard.set(data, forKey: Self.customNamesKey)
+    }
+
+    private static func loadMenuBarVisibleStocks() -> Set<String> {
+        guard let data = UserDefaults.standard.data(forKey: menuBarVisibleStocksKey) else { return [] }
+        return (try? JSONDecoder().decode(Set<String>.self, from: data)) ?? []
+    }
+
+    private func saveMenuBarVisibleStocks() {
+        guard let data = try? JSONEncoder().encode(menuBarVisibleStocks) else { return }
+        UserDefaults.standard.set(data, forKey: Self.menuBarVisibleStocksKey)
     }
 }
