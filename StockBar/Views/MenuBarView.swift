@@ -290,6 +290,17 @@ struct MenuBarView: View {
                 }
             }
             .frame(maxWidth: isSharedRow ? .infinity : nil)
+
+            // Menu bar visibility toggle
+            Button {
+                viewModel.toggleMenuBarVisible(stock.id)
+            } label: {
+                Image(systemName: viewModel.isMenuBarVisible(stock.id) ? "eye" : "eye.slash")
+                    .font(.system(size: 10))
+                    .foregroundStyle(viewModel.isMenuBarVisible(stock.id) ? .blue : .secondary)
+            }
+            .buttonStyle(.plain)
+            .help(viewModel.isMenuBarVisible(stock.id) ? "菜单栏可见" : "菜单栏隐藏")
         }
         .frame(maxWidth: isSharedRow ? .infinity : nil)
         .contentShape(Rectangle())
@@ -347,10 +358,6 @@ struct MenuBarView: View {
             Button("重命名") {
                 renameText = viewModel.customName(for: stock.id) ?? stock.name
                 renamingStockId = stock.id
-            }
-
-            Button(viewModel.isMenuBarVisible(stock.id) ? "✓ 菜单栏显示" : "菜单栏显示") {
-                viewModel.toggleMenuBarVisible(stock.id)
             }
 
             Menu("显示样式") {
